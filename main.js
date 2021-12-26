@@ -34,6 +34,7 @@ class Bmw extends utils.Adapter {
     async onReady() {
         // Reset the connection indicator during startup
         this.setState("info.connection", false, true);
+		this.setState("info.V1APIconnection", false, true);
         if (this.config.interval < 0.5) {
             this.log.info("Set interval to minimum 0.5");
             this.config.interval = 0.5;
@@ -41,19 +42,23 @@ class Bmw extends utils.Adapter {
         axiosCookieJarSupport(axios);
         this.cookieJar = new tough.CookieJar();
         this.requestClient = axios.create();
+        this.cookieJar2 = new tough.CookieJar();
+        this.requestClient2 = axios.create();
         this.updateInterval = null;
+		this.v1updateInterval = null;
         this.reLoginTimeout = null;
         this.refreshTokenTimeout = null;
+		this.v1refreshTokenTimeout = null;
         this.extractKeys = extractKeys;
         this.vinArray = [];
         this.session = {};
+        this.v1session = {};
         this.statusBlock = {};
         this.nonChargingHistory = {};
         this.subscribeStates("*");
 
         await this.login();
         if (this.session.access_token) {
-            await this.getVehicles();
             await this.cleanObjects();
             await this.getVehiclesv2();
             this.updateInterval = setInterval(async () => {
@@ -63,7 +68,87 @@ class Bmw extends utils.Adapter {
                 this.refreshToken();
             }, this.session.expires_in * 1000);
         }
+		
+		//V1 Login and Data request
+        await this.v1login()
+        if (this.v1session.access_token) {
+			this.log.debug("V1 Login Success!! Token recived!");
+            await this.v1getVehicles();
+			await this.v1updateVehicles();
+			this.v1updateInterval = setInterval(async () => {
+                await this.v1updateVehicles();
+            }, this.config.interval * 60 * 1000);
+            this.v1refreshTokenInterval = setInterval(() => {
+                this.v1login();
+            }, this.v1session.expires_in * 1000);
+        }
     }
+
+    async v1login() {	  
+      const v1data = {
+			username: this.config.username,
+			password: this.config.password,
+			client_id: 'dbf0a542-ebd1-4ff0-a9a7-55172fbfce35',
+			redirect_uri: 'https://www.bmw-connecteddrive.com/app/static/external-dispatch.html',
+			response_type: 'token',
+			scope: 'openid profile email offline_access smacc vehicle_data perseus dlm svds cesim vsapi remote_services fupo authenticate_user',
+			locale: 'DE-de'
+        };
+		
+	  const v1headers = {
+		'Accept': 'application/json',
+		'Content-Type': 'application/x-www-form-urlencoded'
+      };
+	  
+	  var tempdata = '';
+	  var loc ='';
+	  	  
+	  const v1authUrl = await this.requestClient2({
+		  method: 'post',
+          url: 'https://customer.bmwgroup.com/gcdm/oauth/authenticate',
+		  headers: v1headers,
+		  data: qs.stringify(v1data),
+		  validateStatus: function (status) {
+				return status >= 200 && status < 303; // Changed for BMW API Status 302
+		  },
+		  maxRedirects: 0, //needed for Response URL with token
+		  jar: this.cookieJar2,
+          withCredentials: true,
+      })
+			.then((res) => {
+				this.log.debug("Response V1API Status:");
+				this.log.debug(JSON.stringify(res.status));
+				this.log.debug(JSON.stringify(res.statusText));
+				this.log.debug("Response V1API Login:");
+				this.log.debug(JSON.stringify(res.headers));
+				this.log.debug("Token V1API:");
+				this.log.debug(JSON.stringify(res.headers.location));
+				loc = qs.parse((JSON.stringify(res.headers.location)).split("#")[1]);
+				loc.expires_in = loc.expires_in.replace(/"/i, "");
+				this.log.debug(loc.access_token);
+				this.log.debug(loc.token_type);
+				this.log.debug(loc.expires_in);
+				this.v1session = loc;
+				this.setState("info.V1APIconnection", true, true);
+                return res.data;
+              })
+            .catch((error) => {
+				this.log.debug("ErrorV1Login:");
+				this.log.error(JSON.stringify(error.config.url));
+                if (error.response) {
+					this.log.debug("ResponseErrorV1Login:");
+                    this.log.error(JSON.stringify(error.response.headers));
+					this.log.error(JSON.stringify(error.response.status));
+                }
+                if (error.response && error.response.status === 401) {
+                    this.log.error("Please check username and password");
+                }
+                if (error.response && error.response.status === 400) {
+                    this.log.error("Please check username and password");
+                }
+                });
+	  }
+	
     async login() {
         const headers = {
             Accept: "application/json, text/plain, */*",
@@ -71,6 +156,8 @@ class Bmw extends utils.Adapter {
             "Accept-Language": "de-de",
             "Content-Type": "application/x-www-form-urlencoded",
         };
+		
+		//"openid profile email offline_access smacc vehicle_data perseus dlm svds cesim vsapi remote_services fupo authenticate_user",
         const [code_verifier, codeChallenge] = this.getCodeChallenge();
         const data = {
             client_id: "31c357a0-7a1d-4590-aa99-33b97244d048",
@@ -171,6 +258,7 @@ class Bmw extends utils.Adapter {
                 }
             });
     }
+	
     getCodeChallenge() {
         let hash = "";
         let result = "";
@@ -181,22 +269,24 @@ class Bmw extends utils.Adapter {
         hash = hash.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
         return [result, hash];
-    }
-    async getVehicles() {
-        const headers = {
-            "Content-Type": "application/json",
-            Accept: "*/*",
-            Authorization: "Bearer " + this.session.access_token,
-        };
+	}
 
+    async v1getVehicles() {
+        const headers = {
+			"x-user-agent": "android(v1.07_20200330);BMW;1.5.2(8932)",
+			Authorization: "Bearer " + this.v1session.access_token,
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+            };
         await this.requestClient({
             method: "get",
-            url: "https://b2vapi.bmwgroup.com/webapi/v1/user/vehicles",
+            url: "https://b2vapi.bmwgroup.com/api/me/vehicles/v2?all=true",
             headers: headers,
         })
             .then(async (res) => {
+                this.log.debug("Result V1 Vehicles:");
                 this.log.debug(JSON.stringify(res.data));
-                for (const vehicle of res.data.vehicles) {
+                for (const vehicle of res.data) {
                     this.vinArray.push(vehicle.vin);
                     await this.setObjectNotExistsAsync(vehicle.vin, {
                         type: "device",
@@ -205,14 +295,7 @@ class Bmw extends utils.Adapter {
                         },
                         native: {},
                     });
-                    // await this.setObjectNotExistsAsync(vehicle.vin + ".remote", {
-                    //     type: "channel",
-                    //     common: {
-                    //         name: "Remote Controls",
-                    //     },
-                    //     native: {},
-                    // });
-                    await this.setObjectNotExistsAsync(vehicle.vin + ".general", {
+                    await this.setObjectNotExistsAsync(vehicle.vin + ".V1API.general", {
                         type: "channel",
                         common: {
                             name: "General Car Information",
@@ -220,14 +303,92 @@ class Bmw extends utils.Adapter {
                         native: {},
                     });
 
-                    this.extractKeys(this, vehicle.vin + ".general", vehicle);
+                    this.extractKeys(this, vehicle.vin + ".V1API.general", vehicle);
+					//this.rangeMapSupport[vehicle.vin] = vehicle.rangeMap === "NOT_SUPPORTED" ? false : true;
                 }
             })
             .catch((error) => {
-                this.log.error(error);
+				this.log.error("Error V1API getVehicles:");
+                this.log.error(JSON.stringify(error));
                 error.response && this.log.error(JSON.stringify(error.response.data));
             });
     }
+
+    async v1updateVehicles() {
+        const date = this.getDate();
+        const statusArray = [
+            { path: "V1API.status", url: "https://b2vapi.bmwgroup.com/api/vehicle/dynamic/v1/$vin?offset=-60", desc: "Current status of the car v1" },
+            //{ path: "V1API.chargingprofile", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/chargingprofile", desc: "Charging profile of the car v1" },
+            //{ path: "V1API.lastTrip", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/statistics/lastTrip", desc: "Last trip of the car v1" },
+            //{ path: "V1API.allTrips", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/statistics/allTrips", desc: "All trips of the car v1" },
+            //{ path: "V1API.serviceExecutionHistory", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/serviceExecutionHistory", desc: "Remote execution history v1" },
+            //{ path: "V1API.apiV2", url: "https://b2vapi.bmwgroup.com/api/vehicle/v2/$vin", desc: "Limited v2 Api of the car" },
+			{ path: "V1API.socnavigation", url: "https://b2vapi.bmwgroup.com/api/vehicle/navigation/v1/$vin" },
+        ];
+        const headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+            Authorization: "Bearer " + this.v1session.access_token,
+        };
+        this.vinArray.forEach((vin) => {
+             /*if (this.rangeMapSupport[vin]) {
+                statusArray.push({ path: "V1API.rangemap", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/rangemap?deviceTime=" + date });
+            } */
+            statusArray.forEach(async (element) => {
+                const url = element.url.replace("$vin", vin);
+                await this.requestClient({
+                    method: "get",
+                    url: url,
+                    headers: headers,
+                })
+                    .then((res) => {
+                        this.log.debug(JSON.stringify(res.data));
+                        if (!res.data) {
+                            return;
+                        }
+                        let data = res.data;
+                        const keys = Object.keys(res.data);
+						this.log.debug(JSON.stringify(keys));
+						this.log.debug(keys);
+                        if (keys.length === 1) {
+                            data = res.data[keys[0]];
+                        }
+                        let forceIndex = null;
+                        const preferedArrayName = null;
+                        if (element.path === "V1API.serviceExecutionHistory") {
+                            forceIndex = true;
+                        }
+						if (data.attributesMap) {
+							this.log.debug("attributesMap found. Decode to Status..");
+							this.extractKeys(this, vin + "." + element.path, data.attributesMap, preferedArrayName, forceIndex, false, element.desc);
+							if (data.vehicleMessages) {
+								this.log.debug("vehicleMessages found. Decode to Service..");
+								this.extractKeys(this, vin + "." + "V1API.service", data.vehicleMessages, preferedArrayName, forceIndex, false, element.desc);
+							}
+						}
+						else {
+							this.log.debug("Normal Decode");
+							this.extractKeys(this, vin + "." + element.path, data, preferedArrayName, forceIndex, false, element.desc);
+						}
+                    })
+                    .catch((error) => {
+                        if (error.response && error.response.status === 401) {
+                            error.response && this.log.debug(JSON.stringify(error.response.data));
+                            this.log.info(element.path + " receive 401 error. Refresh Token in 30 seconds");
+                            clearTimeout(this.refreshTokenTimeout);
+                            this.v1refreshTokenTimeout = setTimeout(() => {
+                                this.v1login();
+                            }, 1000 * 30);
+                            return;
+                        }
+                        this.log.error(element.url);
+                        this.log.error(error);
+                        error.response && this.log.debug(JSON.stringify(error.response.data));
+                    });
+            });
+        });
+	}
+	
     async getVehiclesv2() {
         const brands = ["bmw", "mini"];
         for (const brand of brands) {
@@ -304,6 +465,7 @@ class Bmw extends utils.Adapter {
                 });
         }
     }
+
     async updateChargingSessionv2(vin) {
         if (this.nonChargingHistory[vin]) {
             return;
@@ -387,6 +549,7 @@ class Bmw extends utils.Adapter {
             }
         }
     }
+	
     getDate() {
         const d = new Date();
 
@@ -470,6 +633,7 @@ class Bmw extends utils.Adapter {
                 if (command === "force-refresh") {
                     this.log.debug("force refresh");
                     this.getVehiclesv2();
+					this.v1updateVehicles();
                     return;
                 }
                 const action = command.split("_")[1];

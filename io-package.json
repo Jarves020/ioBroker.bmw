@@ -39,114 +39,113 @@
                 "pl": "Pierwsze wydanie",
                 "zh-cn": "首次出版"
             }
+        },
+        "titleLang": {
+            "en": "BMW",
+            "de": "BMW",
+            "ru": "BMW",
+            "pt": "BMW",
+            "nl": "BMW",
+            "fr": "BMW",
+            "it": "BMW",
+            "es": "BMW",
+            "pl": "BMW",
+            "zh-cn": "宝马"
+        },
+        "desc": {
+            "en": "Adapter for BMW",
+            "de": "Adapter für BMW",
+            "ru": "Адаптер для BMW",
+            "pt": "Adaptador para bmw",
+            "nl": "Adapter voor BMW",
+            "fr": "Adaptateur pour BMW",
+            "it": "Adattatore per BMW",
+            "es": "Adaptador para BMW",
+            "pl": "Adapter do BMW",
+            "zh-cn": "宝马适配器"
+        },
+        "authors": [
+            "TA2k <tombox2020@gmail.com>"
+        ],
+        "keywords": [
+            "BMW"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "bmw.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/TA2k/ioBroker.bmw/master/admin/bmw.png",
+        "readme": "https://github.com/TA2k/ioBroker.bmw/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "vehicle",
+        "compact": true,
+        "connectionType": "cloud",
+        "dataSource": "poll",
+        "materialize": true,
+        "plugins": {
+            "sentry": {
+                "dsn": "https://f976d718acc2489fb0e1991d4c8d26a0@sentry.iobroker.net/148"
+            }
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=3.0.0"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=4.0.9"
+            }
+        ]
     },
-    "titleLang": {
-      "en": "BMW",
-      "de": "BMW",
-      "ru": "BMW",
-      "pt": "BMW",
-      "nl": "BMW",
-      "fr": "BMW",
-      "it": "BMW",
-      "es": "BMW",
-      "pl": "BMW",
-      "zh-cn": "宝马"
-    },
-    "desc": {
-      "en": "Adapter for BMW",
-      "de": "Adapter für BMW",
-      "ru": "Адаптер для BMW",
-      "pt": "Adaptador para bmw",
-      "nl": "Adapter voor BMW",
-      "fr": "Adaptateur pour BMW",
-      "it": "Adattatore per BMW",
-      "es": "Adaptador para BMW",
-      "pl": "Adapter do BMW",
-      "zh-cn": "宝马适配器"
-    },
-    "authors": [
-      "TA2k <tombox2020@gmail.com>"
+    "encryptedNative": [
+        "password"
     ],
-    "keywords": [
-      "BMW"
+    "protectedNative": [
+        "password"
     ],
-    "license": "MIT",
-    "platform": "Javascript/Node.js",
-    "main": "main.js",
-    "icon": "bmw.png",
-    "enabled": true,
-    "extIcon": "https://raw.githubusercontent.com/TA2k/ioBroker.bmw/master/admin/bmw.png",
-    "readme": "https://github.com/TA2k/ioBroker.bmw/blob/master/README.md",
-    "loglevel": "info",
-    "mode": "daemon",
-    "type": "vehicle",
-    "compact": true,
-    "connectionType": "cloud",
-    "dataSource": "poll",
-    "materialize": true,
-    "plugins": {
-      "sentry": {
-        "dsn": "https://f976d718acc2489fb0e1991d4c8d26a0@sentry.iobroker.net/148"
-      }
+    "native": {
+        "username": "",
+        "password": "",
+        "interval": 5
     },
-    "dependencies": [
-      {
-        "js-controller": ">=3.0.0"
-      }
-    ],
-    "globalDependencies": [
-      {
-        "admin": ">=4.0.9"
-      }
-    ],
-    "installedFrom": "iobroker.bmw@2.5.0"
-  },
-  "encryptedNative": [
-    "password"
-  ],
-  "protectedNative": [
-    "password"
-  ],
-  "native": {
-    "username": "",
-    "password": "",
-    "interval": 5
-  },
-  "objects": [],
-  "instanceObjects": [
-    {
-      "_id": "info",
-      "type": "channel",
-      "common": {
-        "name": "Information"
-      },
-      "native": {}
-    },
-    {
-      "_id": "info.connection",
-      "type": "state",
-      "common": {
-        "role": "indicator.connected",
-        "name": "Device or service connected",
-        "type": "boolean",
-        "read": true,
-        "write": false,
-        "def": false
-      },
-      "native": {}
-    },
-	{
-      "_id": "info.V1APIconnection",
-      "type": "state",
-      "common": {
-        "role": "indicator.connected",
-        "name": "V1API Device or service connected",
-        "type": "boolean",
-        "read": true,
-        "write": false,
-        "def": false
-      },
-      "native": {}
-    }
-  ]
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.V1APIconnection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "V1API Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
 }

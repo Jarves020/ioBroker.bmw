@@ -1,40 +1,44 @@
 {
-  "common": {
-    "name": "bmw",
-    "version": "2.5.1",
-    "news": {
-      "2.5.1": {
-        "en": "Reactivated V1 API",
-        "de": "V1 API Reaktiviert"
-      },
-      "2.5.0": {
-        "en": "Fix Login",
-        "de": "Loginproblem behoben"
-      },
-      "2.4.1": {
-        "en": "Add support for MINI and a force refresh remote",
-        "de": "Support für MINI hinzugefügt und ein Update erzwingen remote"
-      },
-      "2.3.0": {
-        "en": "Disable v1 Endpoints",
-        "de": "Deaktivieren v1 Endpunkte wurden entfernt."
-      },
-      "2.1.2": {
-        "en": "Upgrade to statusV2 and remoteV2",
-        "de": "Status und Remote Kontrolle auf v2 der neuen BMW App geupdated"
-      },
-      "2.0.0": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "zh-cn": "首次出版"
-      }
+    "common": {
+        "name": "bmw",
+        "version": "2.5.2",
+        "news": {
+             "2.5.2": {
+                "en": "Reactivated V1 API",
+                "de": "V1 API Reaktiviert"
+            },
+            "2.5.1": {
+                "en": "Add login error message",
+                "de": "Loginproblem Nachricht hinzugefügt"
+            },
+            "2.5.0": {
+                "en": "Fix Login",
+                "de": "Loginproblem behoben"
+            },
+            "2.4.1": {
+                "en": "Add support for MINI and a force refresh remote",
+                "de": "Support für MINI hinzugefügt und ein Update erzwingen remote"
+            },
+            "2.3.0": {
+                "en": "Disable v1 Endpoints",
+                "de": "Deaktivieren v1 Endpunkte wurden entfernt."
+            },
+            "2.1.2": {
+                "en": "Upgrade to statusV2 and remoteV2",
+                "de": "Status und Remote Kontrolle auf v2 der neuen BMW App geupdated"
+            },
+            "2.0.0": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
     },
     "titleLang": {
       "en": "BMW",

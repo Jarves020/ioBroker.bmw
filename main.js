@@ -327,13 +327,14 @@ class Bmw extends utils.Adapter {
     async v1updateVehicles() {
         const date = this.getDate();
         const statusArray = [
-            { path: "V1API.status", url: "https://b2vapi.bmwgroup.com/api/vehicle/dynamic/v1/$vin?offset=-60", desc: "Current status of the car v1" },
+		{ path: "V1API.status", url: "https://b2vapi.bmwgroup.com/api/vehicle/dynamic/v1/$vin", desc: "Current status of the car v1" },
+            //{ path: "V1API.status", url: "https://b2vapi.bmwgroup.com/api/vehicle/dynamic/v1/$vin?offset=-60", desc: "Current status of the car v1" },
             //{ path: "V1API.chargingprofile", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/chargingprofile", desc: "Charging profile of the car v1" },
             //{ path: "V1API.lastTrip", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/statistics/lastTrip", desc: "Last trip of the car v1" },
             //{ path: "V1API.allTrips", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/statistics/allTrips", desc: "All trips of the car v1" },
             //{ path: "V1API.serviceExecutionHistory", url: "https://b2vapi.bmwgroup.com/api/v1/user/vehicles/$vin/serviceExecutionHistory", desc: "Remote execution history v1" },
             //{ path: "V1API.apiV2", url: "https://b2vapi.bmwgroup.com/api/vehicle/v2/$vin", desc: "Limited v2 Api of the car" },
-			{ path: "V1API.socnavigation", url: "https://b2vapi.bmwgroup.com/api/vehicle/navigation/v1/$vin" },
+		{ path: "V1API.socnavigation", url: "https://b2vapi.bmwgroup.com/api/vehicle/navigation/v1/$vin" },
         ];
         const headers = {
             "Content-Type": "application/x-www-form-urlencoded",

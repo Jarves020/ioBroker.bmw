@@ -91,8 +91,9 @@ class Bmw extends utils.Adapter {
       const v1data = {
 			username: this.config.username,
 			password: this.config.password,
-			client_id: 'dbf0a542-ebd1-4ff0-a9a7-55172fbfce35',
-			redirect_uri: 'https://www.bmw-connecteddrive.com/app/static/external-dispatch.html',
+			//client_id: 'dbf0a542-ebd1-4ff0-a9a7-55172fbfce35',
+			client_id: '31c357a0-7a1d-4590-aa99-33b97244d048',
+			redirect_uri: 'com.bmw.connected://oauth',
 			response_type: 'token',
 			scope: 'openid profile email offline_access smacc vehicle_data perseus dlm svds cesim vsapi remote_services fupo authenticate_user',
 			locale: 'DE-de'

@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "bmw",
-        "version": "2.5.2",
+        "version": "2.5.3",
         "news": {
+			"2.5.3": {
+                "en": "Login Fix V1 API",
+                "de": "Login Fix V1 API"
+            },
              "2.5.2": {
                 "en": "Reactivated V1 API",
                 "de": "V1 API Reaktiviert"
